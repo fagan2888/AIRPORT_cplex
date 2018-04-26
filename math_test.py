@@ -1,3 +1,2 @@
-import numpy
-
-print numpy.square(10)
+import random
+print random.random()
