@@ -3,11 +3,12 @@ import re
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import Line2D
 import random
-
+import numpy as np
 
 def process_solution(solution_list):
     paths = []
     deleted = []
+    # find the path section start from 0 point
     for solut in solution_list:
         if solut[0] == 0:
             paths.append([solut[0], solut[1]])
@@ -35,11 +36,30 @@ def process_solution(solution_list):
                 pass
     i=0
     while i <len(paths):
-        if paths[i]==[0,tot+1]:
+        if paths[i]==[0,0]:
             paths.remove(paths[i])
             i-=1 # or the list will out of range
         else:
-            print 'paths' + str(i) + '                                       ', paths[i]
+            print 'paths' + str(i) + '                          ', paths[i]
+            tot_length=0
+            for j in range(len(paths[i])-2):
+                tot_length+=round(np.sqrt(np.square(coord_list[paths[i][j]][0] - coord_list[paths[i][j+1]][0]) + np.square(coord_list[paths[i][j]][1] - coord_list[paths[i][j+1]][1])), 2)
+            print '     tot_dist=',tot_length,
+            length_to_last=round(np.sqrt(np.square(coord_list[paths[i][0]][0] - coord_list[paths[i][-2]][0]) + np.square(coord_list[paths[i][0]][1] - coord_list[paths[i][-2]][1])), 2)
+            print '     dist to last point=',length_to_last
+            detour=round(tot_length/length_to_last,2)
+            print '     detour=',detour
+            print '>>>>',detour<=1.3,'\n'
+            if detour>1.3:
+                print '''
+                
+                #######  ######  ######  ######  ######
+                ##   ##  ##   #  ##   #  ##  ##  ##   #
+                #######  ######  ######  ##  ##  ######
+                ##       # ##    # ##    ##  ##  # ##
+                #######  #   ##  #   ##  ######  #   ##
+                
+                   '''
         i+=1
     return paths
 
@@ -68,8 +88,8 @@ def get_paths():
 
 def plot_path(coord_list, paths):
     figure, ax = plt.subplots()
-    ax.set_xlim(left=0, right=tot * 1.3)
-    ax.set_ylim(bottom=0, top=tot * 1.3)
+    #ax.set_xlim(left=0, right=tot * 1.3)
+    #ax.set_ylim(bottom=0, top=tot * 1.3)
     for i in range(tot + 1):
         ax.scatter(coord_list[i][0], coord_list[i][1])
         pass
@@ -99,15 +119,18 @@ def plot_path(coord_list, paths):
     pass
 
 
-tot = 12
+tot = 9
 # coord=0
-coord_line = open('coordinate_cplex.txt', 'r').readline()
-content = coord_line.split('], [')
+coord_line = open('coordinate_cplex_full.txt', 'r').readline()
+content = coord_line.split('],[')
 coord_list = []
 import re
 for coo in content:
-    coord_list.append([int(re.findall('\d+(?=,)', coo)[0]), int(re.findall('(?<=, )\d+', coo)[0])])
-coord_list[0:0] = [[0, 0]]
+    #print coo
+    #print(re.findall('\d+\.\d+(?=,)', coo)[0])
+    coord_list.append([float(re.findall('\d+\.\d+(?=,)', coo)[0]), float(re.findall('(?<=,)\d+\.\d+', coo)[0])])
+#coord_list[0:0] = [[0, 0]]
+coord_list[0:0] = [[103.955542,30.569893]]
 
 paths = get_paths()
 plot_path(coord_list, paths)
